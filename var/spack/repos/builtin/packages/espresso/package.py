@@ -39,6 +39,11 @@ class Espresso(Package):
     url = 'http://www.qe-forge.org/gf/download/frsrelease/204/912/espresso-5.3.0.tar.gz'
 
     version(
+        '6.2.0-rc4',
+        'efc99b34149f749a643958ae49e3540e'
+    )
+
+    version(
         '6.1.0',
         'db398edcad76e085f8c8a3f6ecb7aaab',
         url='http://www.qe-forge.org/gf/download/frsrelease/240/1075/qe-6.1.tar.gz'
@@ -59,6 +64,9 @@ class Espresso(Package):
     # Support for HDF5 has been added starting in version 6.1.0 and is
     # still experimental, therefore we default to False for the variant
     variant('hdf5', default=False, description='Builds with HDF5 support')
+
+    # Added by Marco for QE 6.2
+    variant('oldxml', default=False, description='Use the old XML format for machine-readable output')
 
     depends_on('blas')
     depends_on('lapack')
@@ -153,6 +161,9 @@ class Espresso(Package):
         ])
 
         configure(*options)
+
+        if '+oldxml' in self.spec:
+            filter_file(r'(^\s*MANUAL_DFLAGS\s*=)', r'\1 -D__OLDXML', 'make.inc')
 
         make('all')
 
