@@ -6,7 +6,7 @@
 # Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://github.com/llnl/spack
+# For details, see https://github.com/spack/spack
 # Please also see the NOTICE and LICENSE files for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,7 @@ class Perl(Package):  # Perl doesn't use Autotools, it should subclass Package
     # Misc releases that people need
     version('5.22.2', '5767e2a10dd62a46d7b57f74a90d952b')
     version('5.22.1', '19295bbb775a3c36123161b9bf4892f1')
+    version('5.22.0', 'e32cb6a8dda0084f2a43dac76318d68d')
 
     # End of life releases
     version('5.20.3', 'd647d0ea5a7a8194c34759ab9f2610cd')
@@ -64,6 +65,11 @@ class Perl(Package):  # Perl doesn't use Autotools, it should subclass Package
     extendable = True
 
     depends_on('gdbm')
+
+    # there has been a long fixed issue with 5.22.0 with regard to the ccflags
+    # definition.  It is well documented here:
+    # https://rt.perl.org/Public/Bug/Display.html?id=126468
+    patch('protect-quotes-in-ccflags.patch', when='@5.22.0')
 
     # Installing cpanm alongside the core makes it safe and simple for
     # people/projects to install their own sets of perl modules.  Not
@@ -114,8 +120,8 @@ class Perl(Package):  # Perl doesn't use Autotools, it should subclass Package
                            self.prefix.lib.perl5 + '\\"')
 
         # Discussion of -fPIC for Intel at:
-        # https://github.com/LLNL/spack/pull/3081 and
-        # https://github.com/LLNL/spack/pull/4416
+        # https://github.com/spack/spack/pull/3081 and
+        # https://github.com/spack/spack/pull/4416
         if spec.satisfies('%intel'):
             config_args.append('-Accflags={0}'.format(self.compiler.pic_flag))
 
@@ -250,7 +256,10 @@ class Perl(Package):  # Perl doesn't use Autotools, it should subclass Package
 
         super(Perl, self).activate(ext_pkg, **args)
 
-        exts = spack.store.layout.extension_map(self.spec)
+        extensions_layout = args.get("extensions_layout",
+                                     spack.store.extensions)
+
+        exts = extensions_layout.extension_map(self.spec)
         exts[ext_pkg.name] = ext_pkg.spec
 
     def deactivate(self, ext_pkg, **args):
@@ -259,7 +268,10 @@ class Perl(Package):  # Perl doesn't use Autotools, it should subclass Package
 
         super(Perl, self).deactivate(ext_pkg, **args)
 
-        exts = spack.store.layout.extension_map(self.spec)
+        extensions_layout = args.get("extensions_layout",
+                                     spack.store.extensions)
+
+        exts = extensions_layout.extension_map(self.spec)
         # Make deactivate idempotent
         if ext_pkg.name in exts:
             del exts[ext_pkg.name]
