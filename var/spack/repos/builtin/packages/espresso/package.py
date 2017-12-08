@@ -39,8 +39,9 @@ class Espresso(Package):
     url = 'http://www.qe-forge.org/gf/download/frsrelease/204/912/espresso-5.3.0.tar.gz'
 
     version(
-        '6.2.0-rc4',
-        'efc99b34149f749a643958ae49e3540e'
+        '6.2.0',
+        '016e7f22dba2086cc80c0f98447ddf1b',
+        url='http://qe-forge.org/gf/download/frsrelease/244/1114/qe-6.2.tar.gz'
     )
 
     version(
@@ -79,8 +80,8 @@ class Espresso(Package):
     depends_on('elpa~openmp', when='+elpa~openmp')
     depends_on('hdf5', when='+hdf5')
 
-    patch('dspev_drv_elpa.patch', when='@6.1 ^elpa@2016.05.004')
-    patch('dspev_drv_elpa.patch', when='@6.1 ^elpa@2016.05.003')
+    patch('dspev_drv_elpa.patch', when='@6.1: ^elpa@2016.05.004')
+    #patch('dspev_drv_elpa.patch', when='@6.1: ^elpa@2016.05.003')
 
     # We can't ask for scalapack or elpa if we don't want MPI
     conflicts(
