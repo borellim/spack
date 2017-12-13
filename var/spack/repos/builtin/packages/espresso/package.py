@@ -39,6 +39,12 @@ class Espresso(Package):
     url = 'http://www.qe-forge.org/gf/download/frsrelease/204/912/espresso-5.3.0.tar.gz'
 
     version(
+        '6.2.1',
+        'e9d92b51a8b9983766a89a164bfac36f',
+        url='http://qe-forge.org/gf/download/frsrelease/247/1132/qe-6.2.1.tar.gz'
+    )
+
+    version(
         '6.2.0',
         '016e7f22dba2086cc80c0f98447ddf1b',
         url='http://qe-forge.org/gf/download/frsrelease/244/1114/qe-6.2.tar.gz'
