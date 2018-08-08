@@ -39,6 +39,18 @@ class Espresso(Package):
     url = 'http://www.qe-forge.org/gf/download/frsrelease/204/912/espresso-5.3.0.tar.gz'
 
     version(
+        '6.3',
+        '1b67687d90d1d16781d566d44d14634c',
+        url='https://gitlab.com/QEF/q-e/-/archive/qe-6.3/q-e-qe-6.3.tar.gz'
+    )
+
+    version(
+        '6.2.2-git-20180305-a027060a11',
+        git='https://gitlab.com/QEF/q-e.git',
+        commit='a027060a11b37deacfc2aacc1d869ef7748001af'
+    )
+
+    version(
         '6.2.1',
         'e9d92b51a8b9983766a89a164bfac36f',
         url='http://qe-forge.org/gf/download/frsrelease/247/1132/qe-6.2.1.tar.gz'
@@ -75,6 +87,9 @@ class Espresso(Package):
     # Added by Marco for QE 6.2
     variant('oldxml', default=False, description='Use the old XML format for machine-readable output')
 
+    # Added by Marco - WARNING: dummy variant!
+    #variant('perftools', default=False, description='Dummy variant to distinguish build with CrayPAT')
+
     depends_on('blas')
     depends_on('lapack')
     depends_on('mpi', when='+mpi')
@@ -88,6 +103,7 @@ class Espresso(Package):
 
     patch('dspev_drv_elpa.patch', when='@6.1: ^elpa@2016.05.004')
     #patch('dspev_drv_elpa.patch', when='@6.1: ^elpa@2016.05.003')
+    patch('fix_make_install_v6.3.patch', when='@6.3')
 
     # We can't ask for scalapack or elpa if we don't want MPI
     conflicts(
@@ -115,7 +131,7 @@ class Espresso(Package):
 
     def install(self, spec, prefix):
 
-        prefix_path = prefix.bin if '@:5.4.0' in spec else prefix
+        prefix_path = prefix.bin if 'espresso@:5.4.0' in spec else prefix
         options = ['-prefix={0}'.format(prefix_path)]
 
         if '+mpi' in spec:
@@ -140,7 +156,7 @@ class Espresso(Package):
 
             # Compute the include directory from there: versions
             # of espresso prior to 6.1 requires -I in front of the directory
-            elpa_include = '' if '@6.1:' in spec else '-I'
+            elpa_include = '' if 'espresso@6.1:' in spec else '-I'
             elpa_include += os.path.dirname(elpa_module[0])
 
             options.extend([
@@ -169,10 +185,16 @@ class Espresso(Package):
 
         configure(*options)
 
-        if '+oldxml' in self.spec:
+        if '+oldxml' in spec:
             filter_file(r'(^\s*MANUAL_DFLAGS\s*=)', r'\1 -D__OLDXML', 'make.inc')
 
-        make('all')
+        # Work around a bug in 6.3 which prevents cp.x from compiling if __OLDXML is set
+        if spec.version == Version('6.3') and '+oldxml' in spec:
+            print "WARNING: skipping target cp because it won't compile with -D__OLDXML"
+            for target in ['pwall','ld1','upf','tddfpt','xspectra','gwl']:
+                make(target)
+        else:
+            make('all')
 
         if 'platform=darwin' in spec:
             mkdirp(prefix.bin)

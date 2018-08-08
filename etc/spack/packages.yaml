@@ -1,8 +1,12 @@
 packages:
   mpich:
+    buildable: False
     modules:
+      # NOTE: the cray-mpich modules do different things depending on which PrgEnv is loaded!
       mpich@7.5.0%intel@17.0.4 arch=cray-CNL-haswell: cray-mpich/7.5.0
       mpich@7.6.0%intel@17.0.4 arch=cray-CNL-haswell: cray-mpich/7.6.0
+      mpich@7.5.0%gcc@5.3.0 arch=cray-CNL-haswell: cray-mpich/7.5.0
+      mpich@7.6.0%gcc@5.3.0 arch=cray-CNL-haswell: cray-mpich/7.6.0
   #hdf5: FIXME
   #  modules:
   #    hdf5@1.10.0.3: cray-hdf5/1.10.0.3
@@ -16,3 +20,7 @@ packages:
     compiler: [intel@17.0.4, intel@17.0.1]
     providers:
       mpi: [mpich]
+      blas:      [intel-mkl]
+      lapack:    [intel-mkl]
+      scalapack: [intel-mkl]
+      mkl:       [intel-mkl]
