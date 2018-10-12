@@ -39,6 +39,18 @@ class Espresso(Package):
     url = 'http://www.qe-forge.org/gf/download/frsrelease/204/912/espresso-5.3.0.tar.gz'
 
     version(
+        '6.3-backports-20181003',
+        git='https://gitlab.com/QEF/q-e.git',
+        commit='29c951ebbfc3b2248d0308102d05c4c081db891e'
+    )
+
+    version(
+        '6.3-backports-20180919',
+        git='https://gitlab.com/QEF/q-e.git',
+        commit='90a2aa88298f5005b8ab8f5fcc354c5870481d68'
+    )
+
+    version(
         '6.3',
         '1b67687d90d1d16781d566d44d14634c',
         url='https://gitlab.com/QEF/q-e/-/archive/qe-6.3/q-e-qe-6.3.tar.gz'
