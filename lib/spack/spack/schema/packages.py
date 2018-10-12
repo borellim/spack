@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -58,6 +58,23 @@ schema = {
                         'buildable': {
                             'type':  'boolean',
                             'default': True,
+                        },
+                        'permissions': {
+                            'type': 'object',
+                            'additionalProperties': False,
+                            'properties': {
+                                'read': {
+                                    'type':  'string',
+                                    'enum': ['user', 'group', 'world'],
+                                },
+                                'write': {
+                                    'type':  'string',
+                                    'enum': ['user', 'group', 'world'],
+                                },
+                                'group': {
+                                    'type':  'string',
+                                },
+                            },
                         },
                         'modules': {
                             'type': 'object',

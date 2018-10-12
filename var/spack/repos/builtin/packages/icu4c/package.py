@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -46,4 +46,11 @@ class Icu4c(AutotoolsPackage):
         return url.format(version.dotted, version.underscored)
 
     def configure_args(self):
-        return ['--enable-rpath']
+        args = []
+
+        # The --enable-rpath option is only needed on MacOS, and it
+        # breaks the build for xerces-c on Linux.
+        if 'platform=darwin' in self.spec:
+            args.append('--enable-rpath')
+
+        return args

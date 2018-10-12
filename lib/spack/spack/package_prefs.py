@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -22,16 +22,17 @@
 # License along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
+import stat
 from six import string_types
 from six import iteritems
 
 from llnl.util.lang import classproperty
 
-import spack
+import spack.repo
 import spack.error
 from spack.util.path import canonicalize_path
 from spack.version import VersionList
-
+from spack.config import ConfigError
 
 _lesser_spec_types = {'compiler': spack.spec.CompilerSpec,
                       'version': VersionList}
@@ -44,14 +45,14 @@ def _spec_type(component):
 
 def get_packages_config():
     """Wrapper around get_packages_config() to validate semantics."""
-    config = spack.config.get_config('packages')
+    config = spack.config.get('packages')
 
     # Get a list of virtuals from packages.yaml.  Note that because we
     # check spack.repo, this collects virtuals that are actually provided
     # by sometihng, not just packages/names that don't exist.
     # So, this won't include, e.g., 'all'.
     virtuals = [(pkg_name, pkg_name._start_mark) for pkg_name in config
-                if spack.repo.is_virtual(pkg_name)]
+                if spack.repo.path.is_virtual(pkg_name)]
 
     # die if there are virtuals in `packages.py`
     if virtuals:
@@ -204,25 +205,6 @@ class PackagePrefs(object):
                     if name in pkg.variants)
 
 
-class PackageTesting(object):
-    def __init__(self):
-        self.packages_to_test = set()
-        self._test_all = False
-
-    def test(self, package_name):
-        self.packages_to_test.add(package_name)
-
-    def test_all(self):
-        self._test_all = True
-
-    def clear(self):
-        self._test_all = False
-        self.packages_to_test.clear()
-
-    def check(self, package_name):
-        return self._test_all or (package_name in self.packages_to_test)
-
-
 def spec_externals(spec):
     """Return a list of external specs (w/external directory path filled in),
        one for each known external installation."""
@@ -269,6 +251,80 @@ def is_spec_buildable(spec):
     if 'buildable' not in allpkgs[spec.name]:
         return True
     return allpkgs[spec.name]['buildable']
+
+
+def get_package_dir_permissions(spec):
+    """Return the permissions configured for the spec.
+
+    Include the GID bit if group permissions are on. This makes the group
+    attribute sticky for the directory. Package-specific settings take
+    precedent over settings for ``all``"""
+    perms = get_package_permissions(spec)
+    if perms & stat.S_IRWXG:
+        perms |= stat.S_ISGID
+    return perms
+
+
+def get_package_permissions(spec):
+    """Return the permissions configured for the spec.
+
+    Package-specific settings take precedence over settings for ``all``"""
+
+    # Get read permissions level
+    for name in (spec.name, 'all'):
+        try:
+            readable = spack.config.get('packages:%s:permissions:read' % name,
+                                        '')
+            if readable:
+                break
+        except AttributeError:
+            readable = 'world'
+
+    # Get write permissions level
+    for name in (spec.name, 'all'):
+        try:
+            writable = spack.config.get('packages:%s:permissions:write' % name,
+                                        '')
+            if writable:
+                break
+        except AttributeError:
+            writable = 'user'
+
+    perms = stat.S_IRWXU
+    if readable in ('world', 'group'):  # world includes group
+        perms |= stat.S_IRGRP | stat.S_IXGRP
+    if readable == 'world':
+        perms |= stat.S_IROTH | stat.S_IXOTH
+
+    if writable in ('world', 'group'):
+        if readable == 'user':
+            raise ConfigError('Writable permissions may not be more' +
+                              ' permissive than readable permissions.\n' +
+                              '      Violating package is %s' % spec.name)
+        perms |= stat.S_IWGRP
+    if writable == 'world':
+        if readable != 'world':
+            raise ConfigError('Writable permissions may not be more' +
+                              ' permissive than readable permissions.\n' +
+                              '      Violating package is %s' % spec.name)
+        perms |= stat.S_IWOTH
+
+    return perms
+
+
+def get_package_group(spec):
+    """Return the unix group associated with the spec.
+
+    Package-specific settings take precedence over settings for ``all``"""
+    for name in (spec.name, 'all'):
+        try:
+            group = spack.config.get('packages:%s:permissions:group' % name,
+                                     '')
+            if group:
+                break
+        except AttributeError:
+            group = ''
+    return group
 
 
 class VirtualInPackagesYAMLError(spack.error.SpackError):

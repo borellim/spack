@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -30,6 +30,7 @@ class RRodbc(RPackage):
 
     homepage = "https://cran.rstudio.com/web/packages/RODBC/"
     url      = "https://cran.rstudio.com/src/contrib/RODBC_1.3-13.tar.gz"
+    list_url = "https://cran.r-project.org/src/contrib/Archive/RODBC/"
 
     version('1.3-13', 'c52ef9139c2ed85adc53ad6effa7d68e')
 

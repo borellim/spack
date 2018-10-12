@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -32,6 +32,7 @@ class Canu(MakefilePackage):
     homepage = "http://canu.readthedocs.io/"
     url      = "https://github.com/marbl/canu/archive/v1.5.tar.gz"
 
+    version('1.7.1', sha256='c314659c929ee05fd413274f391463a93f19b8337eabb7ee5de1ecfc061caafa')
     version('1.5', '65df275baa28ecf11b15dfd7343361e3')
 
     depends_on('gnuplot', type='run')
@@ -42,9 +43,8 @@ class Canu(MakefilePackage):
 
     def patch(self):
         # Use our perl, not whatever is in the environment
-        perl = self.spec['perl'].prefix.bin.perl
         filter_file(r'^#!/usr/bin/env perl',
-                    '#!{0}'.format(perl),
+                    '#!{0}'.format(self.spec['perl'].command.path),
                     'src/pipelines/canu.pl')
 
     def install(self, spec, prefix):

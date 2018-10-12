@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -42,6 +42,7 @@ class BlastPlus(AutotoolsPackage):
     homepage = "http://blast.ncbi.nlm.nih.gov/"
     url      = "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-src.tar.gz"
 
+    version('2.7.1', sha256='10a78d3007413a6d4c983d2acbf03ef84b622b82bd9a59c6bd9fbdde9d0298ca')
     version('2.6.0',  'c8ce8055b10c4d774d995f88c7cc6225')
     version('2.2.30', 'f8e9a5eb368173142fe6867208b73715')
 
@@ -106,6 +107,8 @@ class BlastPlus(AutotoolsPackage):
 
     depends_on('python', when='+python')
     depends_on('perl', when='+perl')
+
+    depends_on('lmdb', when='@2.7.1:')
 
     configure_directory = 'c++'
 

@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -34,6 +34,7 @@ from spack.build_systems.qmake import QMakePackage
 from spack.build_systems.waf import WafPackage
 from spack.build_systems.perl import PerlPackage
 from spack.build_systems.intel import IntelPackage
+from spack.build_systems.meson import MesonPackage
 
 description = 'stage and configure a package but do not install'
 section = "build"
@@ -47,6 +48,7 @@ build_system_to_phase = {
     WafPackage: 'configure',
     PerlPackage: 'configure',
     IntelPackage: 'configure',
+    MesonPackage: 'meson',
 }
 
 
@@ -79,7 +81,7 @@ def _stop_at_phase_during_install(args, calling_fn, phase_mapping):
         # Install package dependencies if needed
         parser = argparse.ArgumentParser()
         inst.setup_parser(parser)
-        tty.msg('Checking dependencies for {0}'.format(args.package))
+        tty.msg('Checking dependencies for {0}'.format(args.package[0]))
         cli_args = ['-v'] if args.verbose else []
         install_args = parser.parse_args(cli_args + ['--only=dependencies'])
         install_args.package = args.package

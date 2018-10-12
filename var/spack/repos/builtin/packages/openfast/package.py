@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -29,16 +29,12 @@ class Openfast(CMakePackage):
     """Wind turbine simulation package from NREL"""
 
     homepage = "http://openfast.readthedocs.io/en/latest/"
-    url      = "https://github.com/OpenFAST/openfast.git"
+    git      = "https://github.com/OpenFAST/openfast.git"
 
     maintainers = ['jrood-nrel']
 
-    version('develop',
-            git='https://github.com/OpenFAST/openfast.git',
-            branch='dev')
-    version('master',
-            git='https://github.com/OpenFAST/openfast.git',
-            branch='master')
+    version('develop', branch='dev')
+    version('master', branch='master')
 
     variant('shared', default=False,
             description="Build shared libraries")
@@ -56,7 +52,7 @@ class Openfast(CMakePackage):
     # Additional dependencies when compiling C++ library
     depends_on('mpi', when='+cxx')
     depends_on('yaml-cpp', when='+cxx')
-    depends_on('hdf5+mpi+cxx', when='+cxx')
+    depends_on('hdf5+mpi+cxx+hl', when='+cxx')
     depends_on('zlib', when='+cxx')
     depends_on('libxml2', when='+cxx')
 
@@ -77,6 +73,13 @@ class Openfast(CMakePackage):
                 'ON' if '+dll-interface' in spec else 'OFF'),
             '-DBUILD_FAST_CPP_API:BOOL=%s' % (
                 'ON' if '+cxx' in spec else 'OFF'),
+        ])
+
+        # Make sure we use Spack's blas/lapack:
+        blas_libs = spec['lapack'].libs + spec['blas'].libs
+        options.extend([
+            '-DBLAS_LIBRARIES=%s' % blas_libs.joined(';'),
+            '-DLAPACK_LIBRARIES=%s' % blas_libs.joined(';')
         ])
 
         if '+cxx' in spec:

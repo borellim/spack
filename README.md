@@ -1,4 +1,4 @@
-# <img src="https://cdn.rawgit.com/spack/spack/features/svg-logo/share/spack/logo/spack-logo.svg" width="64" valign="middle" alt="Spack"/> Spack
+# <img src="https://cdn.rawgit.com/spack/spack/develop/share/spack/logo/spack-logo.svg" width="64" valign="middle" alt="Spack"/> Spack
 
 [![Build Status](https://travis-ci.org/spack/spack.svg?branch=develop)](https://travis-ci.org/spack/spack)
 [![codecov](https://codecov.io/gh/spack/spack/branch/develop/graph/badge.svg)](https://codecov.io/gh/spack/spack)
@@ -66,6 +66,12 @@ Spack has a Slack channel where you can chat about all things Spack:
 
 [Sign up here](https://spackpm.herokuapp.com) to get an invitation mailed
 to you.
+
+### Twitter
+
+You can follow [@spackpm](https://twitter.com/spackpm) on Twitter for
+updates. Also, feel free to `@mention` us in in questions or comments
+about your own experience with Spack.
 
 ### Contributions
 

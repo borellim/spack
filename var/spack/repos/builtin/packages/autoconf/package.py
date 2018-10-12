@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -29,7 +29,7 @@ class Autoconf(AutotoolsPackage):
     """Autoconf -- system configuration part of autotools"""
 
     homepage = 'https://www.gnu.org/software/autoconf/'
-    url = 'http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz'
+    url      = 'https://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz'
 
     version('2.69', '82d05e03b93e45f5a39b828dc9c6c29b')
     version('2.62', '6c1f3b3734999035d77da5024aab4fbd')
@@ -55,12 +55,11 @@ class Autoconf(AutotoolsPackage):
         # We have to do this after install because otherwise the install
         # target will try to rebuild the binaries (filter_file updates the
         # timestamps)
-        perl = join_path(self.spec['perl'].prefix.bin, 'perl')
 
         # Revert sbang, so Spack's sbang hook can fix it up
         filter_file('^#! /usr/bin/env perl',
-                    '#! {0} -w'.format(perl),
-                    '{0}/autom4te'.format(self.prefix.bin),
+                    '#! {0} -w'.format(self.spec['perl'].command.path),
+                    self.prefix.bin.autom4te,
                     backup=False)
 
     def _make_executable(self, name):

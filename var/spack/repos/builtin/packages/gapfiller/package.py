@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -24,6 +24,7 @@
 ##############################################################################
 from spack import *
 import os
+import glob
 
 
 class Gapfiller(Package):
@@ -44,9 +45,20 @@ class Gapfiller(Package):
         return "file://{0}/39GapFiller_v{1}_linux-x86_64.tar.gz".format(
                 os.getcwd(), version.dashed)
 
-    depends_on('perl', type=('build', 'run'))
+    depends_on('perl+threads', type=('build', 'run'))
+
+    def patch(self):
+        with working_dir('.'):
+            files = glob.iglob("*.pl")
+            for file in files:
+                change = FileFilter(file)
+                change.filter('usr/bin/perl', 'usr/bin/env perl')
+                change.filter('require "getopts.pl";', 'use Getopt::Std;')
+                change.filter('&Getopts', 'getopts')
+                change.filter('\r', '')
+                set_executable(file)
 
     def install(self, spec, prefix):
-        install_tree('bowtie', prefix.bowtie)
-        install_tree('bwa', prefix.bwa)
-        install('GapFiller.pl', prefix)
+        install_tree('bowtie', prefix.bin.bowtie)
+        install_tree('bwa', prefix.bin.bwa)
+        install('GapFiller.pl', prefix.bin)

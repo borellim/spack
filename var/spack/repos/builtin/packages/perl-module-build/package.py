@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -36,6 +36,7 @@ class PerlModuleBuild(PerlPackage):
     """
 
     homepage = "http://search.cpan.org/perldoc/Module::Build"
-    url      = "http://search.cpan.org/CPAN/authors/id/L/LE/LEONT/Module-Build-0.4220.tar.gz"
+    url      = "http://search.cpan.org/CPAN/authors/id/L/LE/LEONT/Module-Build-0.4224.tar.gz"
 
+    version('0.4224', sha256='a6ca15d78244a7b50fdbf27f85c85f4035aa799ce7dd018a0d98b358ef7bc782')
     version('0.4220', '9df204e188462a4410d496f316c2c531')
